@@ -1,9 +1,12 @@
-from flask import Flask, jsonify
-from numbers import NumberToWords
+from flask import Flask
+from NumberToWord import NumberToWord
 
 app = Flask(__name__)
 
 @app.route('/towords/<string:variable>')
 def get_number(variable):
-	x = NumbersToWords()
+	x = NumberToWord()
 	return x.english(variable)
+
+if __name__=='__main__':
+	app.run(debug = True)

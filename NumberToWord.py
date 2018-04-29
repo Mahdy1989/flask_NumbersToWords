@@ -1,5 +1,5 @@
 
-class NumbersToWords():
+class NumberToWord():
 	__ones__ = {
 		'0':'zero', '1':'one', '2':'two', '3':'three', '4':'four', '5':'five', 
 		'6':'six', '7':'seven', '8':'eight', '9':'nine', '11':'eleven', 
@@ -53,10 +53,7 @@ class NumbersToWords():
 			numbers into their english literals'''
 
 		if len(number) == 3:
-			denom = ''
-			for k, v in self.__grouping__.items():
-				if len(k) == 3:
-					denom = v
+			denom = 'hundred'
 			#################################
 			x = number[0]
 			for a in self.__ones__:
@@ -65,6 +62,7 @@ class NumbersToWords():
 						x = self.__ones__[a]
 				else:
 					x = ''
+					denom = ''
 			#################################
 			y = number[1]
 			if y == str(1):
@@ -88,9 +86,12 @@ class NumbersToWords():
 				else:
 					z = ''
 			#################################
-			answer = x + ' ' + denom + ' ' + y + ' ' + z
-			if "   " in answer or "  " in answer: 
-				answer.replace('  ', ' ')
+			if x == '':
+				answer = y + ' ' + z
+			else:
+				answer = x + ' ' + denom + ' ' + y + ' ' + z
+			if "   " in answer: 
+				answer.replace('   ', ' ')
 				try: # getting rid of other possible extra white spaces
 					answer.replace('  ', ' ')
 				except:
@@ -98,10 +99,16 @@ class NumbersToWords():
 			return answer.rstrip()
 
 
+	def NumberStr(self, number):
+		return number
+
 
 	def lenNumber(self, number):
 		return len(number)
 
+
+	def message(self, text):
+		return text
 
 
 	def denomination(self, number):
@@ -109,29 +116,37 @@ class NumbersToWords():
 		'''This function returns the highest denomination 
 			of the number based on the length of number'''
 
-		# sorted elements of __grouping__ based on keys' length
+		value = ''
 		groupIndex = sorted(self.__grouping__.keys(), key = lambda n: len(n))
-		for k in groupIndex:
-			if self.lenNumber(number) > 3: # only assign denomination if the number gets to thousands
-				if self.lenNumber(number) >= len(k):
-					return self.__grouping__[k]
+		whole = self.breakIt(number)[0]
+		remainder = self.breakIt(number)[1]
 
+		for k in groupIndex:
+			if whole * 3 + remainder <= len(groupIndex[-1])+2:
+				if whole * 3 + remainder > 3:
+					if self.lenNumber(number) in range(len(k), len(k)+3):
+						value = self.__grouping__[k]
+			else:
+				raise ValueError("""Number too big... denomination not defined for the first {} in {}. 
+					\n\rConsider expanding the __grouping__ dictionary in NumberToWord class...""" \
+					.format(self.reduceNum(number)[0], self.NumberStr(number)))
+		return value
 
 
 	def breakIt(self, number):
 
-		'''Find the number of groupings of 
-		3 digits (whole) or less (remainder)'''
+		'''Find the number of groupings of 3 
+			digits (whole) or less (remainder)'''
 
 		whole = 0
 		remainder = 0
 		
-		if self.lenNumber(number)/3 > 1:
+		if self.lenNumber(number)/3 >= 1:
 			whole = self.lenNumber(number)//3
 			remainder = self.lenNumber(number)%3
-		
+		else:
+			remainder = self.lenNumber(number)%3
 		return (whole, remainder)
-
 
 
 	def reduceNum(self, number):
@@ -159,9 +174,28 @@ class NumbersToWords():
 			if num == '':
 				pass
 			else:
-				numList.append(num)
+				for z in range(len(num)-1, -1, -1):
+					numRev += num[z] 
+				numList.append(numRev)
 		numList.reverse()
 		return numList
+
+
+
+	def reconstruct(self, start, number):
+
+		'''This function reconstructs a new number of length 
+						len(number) - start
+			from the original number by eliminating starting
+			first characters from the number.
+
+			type(start) --> int 
+			type(number) --> str 			'''
+
+		newNumber = ''
+		for i in range(start, len(number)):
+			newNumber += number[i]
+		return newNumber
 
 
 
@@ -170,40 +204,34 @@ class NumbersToWords():
 		'''This function  returns the english reading of the number'''
 
 		engReading = '' # capture the entire english reading
+		Number = self.NumberStr(number)
 		numList = self.reduceNum(number)
-		highestDenom = self.denomination(number) # highest denomination of the number
-		cleanDiv = self.breakIt(number)[0] # the number 3-digit strings in numList, corresponding to __grouping__ keys
 		remainder = self.breakIt(number)[1]
 		dummyLen = self.lenNumber(number)
 
 		c = 0
 		for num in numList:
-
 			if len(numList) == 1:
 				if len(num) < 3:
 					engReading += self.oneTwoEng(num)
 				if len(num) == 3:
 					engReading += self.threeEng(num)  
-
-			else:
-				if c == 0:
+			else: 
+				if c == 0:			
 					if len(num) < 3:
-						dummyStr = '1' * dummyLen
-						denom = [v for k, v in self.__grouping__.items() if len(dummyStr) == len(k)]
-						engReading += self.oneTwoEng(num) + ' ' + str(denom[0])
+						engReading += self.oneTwoEng(num) + ' ' +  self.denomination(Number) #denom
+						Number = self.reconstruct(remainder, Number)
 						c += 1
-						dummyLen -= remainder
 					if len(num) == 3:
-						engReading += self.threeEng(num) 
+						engReading += self.threeEng(num) + ' ' + self.denomination(Number) #denom
+						Number = self.reconstruct(3, Number)
 						c += 1
-						dummyLen -= 3
-
-				else:
-					dummyStr = '1' * dummyLen
-					denom = [v for k, v in self.__grouping__.items() if len(dummyStr) == len(k)]
-					dummyLen -= 3
-					engReading += str(' ' + self.threeEng(num)) + ' ' + str(denom[0])
-
+				else: 
+					if num is numList[-1]:
+						engReading += ' ' + self.threeEng(num) 
+					else:
+						engReading += ' ' + self.threeEng(num) + ' ' + self.denomination(Number) #denom
+						Number = self.reconstruct(3, Number)
 			
 
 		return engReading
