@@ -90,12 +90,7 @@ class NumberToWord():
 				answer = y + ' ' + z
 			else:
 				answer = x + ' ' + denom + ' ' + y + ' ' + z
-			if "   " in answer: 
-				answer.replace('   ', ' ')
-				try: # getting rid of other possible extra white spaces
-					answer.replace('  ', ' ')
-				except:
-					pass
+				
 			return answer.rstrip()
 
 
@@ -234,4 +229,4 @@ class NumberToWord():
 						Number = self.reconstruct(3, Number)
 			
 
-		return engReading
+		return engReading.replace('  ', ' ')
