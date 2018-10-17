@@ -93,16 +93,19 @@ class NumberToWord():
 				
 			return answer.rstrip()
 
-
+	# The number will be entered into the browser so it is a string by default
+	# if not, it will be converted to a string
+	
 	def NumberStr(self, number):
-		return number
+		return str(number)
 
 
 	def lenNumber(self, number):
-		return len(number)
+		return len(str(number))
 
-
+	
 	def message(self, text):
+		'''Any costum messages can be created using this message function'''
 		return text
 
 
