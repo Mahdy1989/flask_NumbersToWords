@@ -126,7 +126,7 @@ class NumberToWord():
 						value = self.__grouping__[k]
 			else:
 				raise ValueError("""Number too big... denomination not defined for the first {} in {}. 
-					\n\rConsider expanding the __grouping__ dictionary in NumberToWord class...""" \
+					\n\rConsider expanding the __grouping__ dictionary in NumberToWord class..."""\
 					.format(self.reduceNum(number)[0], self.NumberStr(number)))
 		return value
 
