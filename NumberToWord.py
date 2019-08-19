@@ -205,7 +205,7 @@ class NumberToWord():
 		Number = self.NumberStr(number)
 		numList = self.reduceNum(number)
 		remainder = self.breakIt(number)[1]
-		dummyLen = self.lenNumber(number)
+		dummyLen = self.lenNumber(Number)
 
 		c = 0
 		for num in numList:
